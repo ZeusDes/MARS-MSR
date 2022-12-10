@@ -11,7 +11,9 @@ def color_thresh(img, above_thresh,below_thresh=(600,600,600)):
      # Require that each pixel be above all three threshold values in RGB 
      # above_thresh will now contain a boolean array with "True" 
      # where threshold was met 
-     above_thresh_result = (img[:,:,0] > above_thresh[0]) & (img[:,:,1] > above_thresh[1]) & (img[:,:,2] > above_thresh[2]) 
+     above_thresh_result = (img[:,:,0] > above_thresh[0])\
+                            & (img[:,:,1] > above_thresh[1])\
+                            & (img[:,:,2] > above_thresh[2]) 
      # Index the array of zeros with the boolean array and set to 1 
      color_select[above_thresh_result] = 1 
   
@@ -153,14 +155,14 @@ def perception_step(Rover):
      
     # 7) Update Rover worldmap (to be displayed on right side of screen)
     
-    Rover.worldmap[obstacle_navigable_y_world, obstacle_x_world, 0] = 255
-    Rover.worldmap[rock_y_world, rock_x_world,1] = 255
-    Rover.worldmap[navigable_y_world, navigable_x_world, 2] = 255
-        # remove overlap mesurements
-    nav_pix = Rover.worldmap[:, :, 2] > 0
-    Rover.worldmap[nav_pix, 0] = 0
-        # clip to avoid overflow
-    Rover.worldmap = np.clip(Rover.worldmap, 0, 255)
+    if (Rover.roll > 359 or Rover.roll < 1):
+        if(Rover.pitch > 359 or Rover.pitch < 1):
+            Rover.worldmap[obstacle_navigable_y_world, obstacle_x_world, 0] = 255
+            Rover.worldmap[rock_y_world, rock_x_world,1] = 255
+            Rover.worldmap[navigable_y_world, navigable_x_world, 2] = 255
+            nav_pix = Rover.worldmap[:, :, 2] > 0 # remove overlap mesurements
+            Rover.worldmap[nav_pix, 0] = 0
+            Rover.worldmap = np.clip(Rover.worldmap, 0, 255) # clip to avoid overflow
                                
     # 8) Convert rover-centric pixel positions to polar coordinates
     Rover.nav_dists, Rover.nav_angles = to_polar_coords(x_pixel_rover, y_pixel_rover) 
